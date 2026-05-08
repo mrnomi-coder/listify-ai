@@ -1,0 +1,11 @@
+import type { Prisma } from "@prisma/client";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { AuthError, requireUser } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { brandVoiceSchema } from "@/lib/validators";
+export const runtime = "nodejs";
+const updateSchema = z.object({ name: z.string().optional(), category: z.string().optional(), seoTitle: z.string().optional(), shortDescription: z.string().optional(), longDescription: z.string().optional(), bulletFeatures: z.array(z.string()).optional(), specifications: z.record(z.string()).optional(), tags: z.array(z.string()).optional(), metaDescription: z.string().optional(), suggestedCategory: z.string().optional(), brandVoice: brandVoiceSchema.optional(), status: z.enum(["DRAFT", "PROCESSING", "READY", "PUBLISHED", "FAILED"]).optional() });
+type Ctx = { params: Promise<{ id: string }> };
+export async function GET(_request: Request, context: Ctx) { try { const user = await requireUser(); const { id } = await context.params; const product = await prisma.product.findFirst({ where: { id, userId: user.id }, include: { assets: true } }); if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 }); return NextResponse.json({ product }); } catch (error) { if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: 401 }); throw error; } }
+export async function PATCH(request: Request, context: Ctx) { try { const user = await requireUser(); const { id } = await context.params; const body = await request.json().catch(() => null); const parsed = updateSchema.safeParse(body); if (!parsed.success) return NextResponse.json({ error: "Invalid update payload." }, { status: 400 }); const existing = await prisma.product.findFirst({ where: { id, userId: user.id } }); if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 }); const data = { ...parsed.data, specifications: parsed.data.specifications as Prisma.InputJsonValue | undefined }; const product = await prisma.product.update({ where: { id }, data }); return NextResponse.json({ product }); } catch (error) { if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: 401 }); throw error; } }

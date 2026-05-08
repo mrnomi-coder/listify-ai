@@ -1,0 +1,8 @@
+import { NextResponse } from "next/server";
+import { AuthError, requireUser } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { decryptSecret } from "@/lib/secrets";
+import { publishProductToShopify } from "@/lib/shopify";
+import { shopifyPublishSchema } from "@/lib/validators";
+export const runtime = "nodejs";
+export async function POST(request: Request) { try { const user = await requireUser(); const body = await request.json().catch(() => null); const parsed = shopifyPublishSchema.safeParse(body); if (!parsed.success) return NextResponse.json({ error: "Select at least one product to publish." }, { status: 400 }); const connection = await prisma.shopifyConnection.findFirst({ where: { userId: user.id, isActive: true, ...(parsed.data.shop ? { shop: parsed.data.shop } : {}) } }); if (!connection) return NextResponse.json({ error: "Connect Shopify before publishing." }, { status: 400 }); const products = await prisma.product.findMany({ where: { userId: user.id, id: { in: parsed.data.productIds } } }); const published = []; for (const product of products) { const shopifyProduct = await publishProductToShopify({ shop: connection.shop, accessToken: decryptSecret(connection.accessTokenCipher) }, product); const updated = await prisma.product.update({ where: { id: product.id }, data: { status: "PUBLISHED", shopifyProductId: shopifyProduct?.id, publishedAt: new Date() } }); published.push(updated); } return NextResponse.json({ published }); } catch (error) { if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: 401 }); const message = error instanceof Error ? error.message : "Unable to publish products."; return NextResponse.json({ error: message }, { status: 400 }); } }
