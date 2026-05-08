@@ -1,0 +1,5 @@
+import type { Product } from "@prisma/client";
+const headers = ["Handle", "Title", "Body (HTML)", "Vendor", "Product Category", "Type", "Tags", "Published", "Option1 Name", "Option1 Value", "Variant Price", "Image Src", "SEO Title", "SEO Description", "Status"];
+function esc(v: unknown) { const s = v == null ? "" : String(v); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }
+function handle(v: string) { return v.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+export function productsToShopifyCsv(products: Product[]) { const rows = products.map((p) => { const title = p.seoTitle ?? p.name ?? "Untitled product"; return [handle(title), title, `${p.shortDescription ?? ""}<p>${p.longDescription ?? ""}</p>`, "Listify AI", p.suggestedCategory ?? p.category ?? "", p.category ?? "", p.tags.join(", "), p.status === "PUBLISHED" ? "TRUE" : "FALSE", "Title", "Default Title", p.price.toString(), p.imageUrl ?? "", p.seoTitle ?? title, p.metaDescription ?? p.shortDescription ?? "", p.status === "PUBLISHED" ? "active" : "draft"]; }); return [headers, ...rows].map((row) => row.map(esc).join(",")).join("\n"); }

@@ -1,0 +1,20 @@
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+export const buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50", { variants: { variant: { default: "bg-primary text-primary-foreground hover:bg-primary/90", secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80", outline: "border bg-background hover:bg-muted", ghost: "hover:bg-muted", destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90" }, size: { sm: "h-8 px-3 text-xs", md: "h-10 px-4", lg: "h-11 px-5", icon: "h-10 w-10" } }, defaultVariants: { variant: "default", size: "md" } });
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, ...props }, ref) => <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />);
+Button.displayName = "Button";
+
+export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) { return <div className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)} {...props} />; }
+export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) { return <div className={cn("space-y-1.5 p-5", className)} {...props} />; }
+export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) { return <h3 className={cn("text-base font-semibold leading-none", className)} {...props} />; }
+export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) { return <div className={cn("p-5 pt-0", className)} {...props} />; }
+export function Badge({ className, variant = "default", ...props }: React.HTMLAttributes<HTMLDivElement> & { variant?: "default" | "secondary" | "success" | "warning" | "danger" }) { const styles = { default: "border-transparent bg-primary text-primary-foreground", secondary: "border-transparent bg-secondary text-secondary-foreground", success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300", warning: "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300", danger: "border-red-500/20 bg-red-500/10 text-red-700 dark:text-red-300" }; return <div className={cn("inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium", styles[variant], className)} {...props} />; }
+export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className, ...props }, ref) => <input className={cn("flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50", className)} ref={ref} {...props} />);
+Input.displayName = "Input";
+export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...props }, ref) => <textarea className={cn("flex min-h-28 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50", className)} ref={ref} {...props} />);
+Textarea.displayName = "Textarea";
+export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) { return <select {...props} className={cn("h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring", props.className)} />; }
+export function Progress({ value, className }: { value: number; className?: string }) { return <div className={cn("h-2 overflow-hidden rounded-full bg-muted", className)}><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>; }

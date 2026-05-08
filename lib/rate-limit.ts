@@ -1,0 +1,2 @@
+const store = new Map<string, { count: number; expiresAt: number }>();
+export async function rateLimit({ key, limit, windowSeconds }: { key: string; limit: number; windowSeconds: number }) { const now = Date.now(); const scoped = `rate:${key}`; const record = store.get(scoped); if (!record || record.expiresAt < now) { store.set(scoped, { count: 1, expiresAt: now + windowSeconds * 1000 }); return { allowed: true, remaining: limit - 1 }; } record.count += 1; return { allowed: record.count <= limit, remaining: Math.max(0, limit - record.count) }; }

@@ -1,0 +1,8 @@
+import { Save, ShieldCheck } from "lucide-react";
+import { AppShell, PageHeading } from "@/components/app-shell";
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Textarea } from "@/components/ui";
+import { brandVoices, defaultBrandPrompts } from "@/lib/constants";
+
+export default function SettingsPage() {
+  return <AppShell><PageHeading eyebrow="Workspace" title="Settings" description="Manage account preferences, reusable brand voice prompts, team security, and API behavior." actions={<Button><Save className="h-4 w-4" />Save changes</Button>} /><div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr]"><Card><CardHeader><CardTitle>Account</CardTitle></CardHeader><CardContent className="space-y-4"><label className="space-y-2 text-sm font-medium">Store name<Input defaultValue="Northline Supply" /></label><label className="space-y-2 text-sm font-medium">Default currency<Input defaultValue="USD" /></label><div className="rounded-lg border bg-muted/35 p-4"><div className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="h-4 w-4 text-primary" />Security</div><p className="mt-2 text-sm leading-6 text-muted-foreground">Session cookies are HTTP-only, signed, and same-site. API routes use rate limiting and per-user database ownership.</p></div></CardContent></Card><Card><CardHeader><CardTitle>Brand voice prompts</CardTitle></CardHeader><CardContent className="grid gap-4">{brandVoices.map((voice) => <label key={voice.value} className="space-y-2 text-sm font-medium">{voice.label}<Textarea defaultValue={defaultBrandPrompts[voice.value]} /></label>)}</CardContent></Card></div></AppShell>;
+}
