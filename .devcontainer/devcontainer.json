@@ -1,0 +1,21 @@
+{
+  "name": "Listify AI",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "forwardPorts": [3000, 5432, 6379],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js app",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "postCreateCommand": "npm install && npm run prisma:generate",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
